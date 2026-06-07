@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #B37662;
+  --color-primary-hover: #9E614D;
+  --color-white: #F6F4F0; /* Soft premium off-white matching the sand theme */
+  --color-sand-50: #E6DFD5; /* Matches the warm sand backdrop of the image */
+  --color-sand-100: #DDD6CC;
+  --color-sand-200: #CFC7BA;
+  --color-cocoa-900: #2C2621;
+  --color-cocoa-600: #6B615A;
+  
+  --font-serif: "Cormorant Garamond", serif;
+  --font-sans: "Inter", sans-serif;
+}
+
+body {
+  background-color: var(--color-sand-50);
+  color: var(--color-cocoa-900);
+  font-family: var(--font-sans);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6, .font-serif {
+  font-family: var(--font-serif);
+  color: var(--color-cocoa-900);
+}
+
+/* Premium Custom Utilities */
+.btn-premium {
+  @apply rounded-full px-6 py-2.5 font-medium tracking-wide transition-all duration-200 cursor-pointer active:scale-98 select-none;
+}
+
+.input-premium {
+  @apply rounded-xl border border-sand-200 bg-white/70 px-4 py-3 text-sm transition-all focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 placeholder-cocoa-600/40 font-sans;
+}
+
+.card-premium {
+  @apply rounded-2xl border border-sand-200/60 bg-white overflow-hidden transition-all duration-300 hover:shadow-md hover:-translate-y-0.5;
+}
+
+/* Hide scrollbar utility */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+
