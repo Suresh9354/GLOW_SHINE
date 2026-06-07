@@ -3,7 +3,7 @@ import { FaShoppingCart, FaStar } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
-import axios from "../axiosConfig";
+import axios, { BACKEND_URL } from "../axiosConfig";
 
 const Shop = () => {
   const { user } = useContext(AuthContext);
@@ -119,7 +119,7 @@ const Shop = () => {
                 {/* Product Image Link */}
                 <Link to={`/product/${product._id}`} className="block overflow-hidden relative aspect-square bg-sand-100">
                   <img
-                    src={`http://localhost:5000${product.image}`}
+                    src={`${BACKEND_URL}${product.image}`}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />

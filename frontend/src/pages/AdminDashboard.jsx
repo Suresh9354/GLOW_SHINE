@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
-import axios from "../axiosConfig";
+import axios, { BACKEND_URL } from "../axiosConfig";
 import { useNavigate } from "react-router-dom";
 import { FaTrash, FaEdit, FaPlus, FaList, FaUpload, FaTimes } from "react-icons/fa";
 
@@ -278,7 +278,7 @@ const AdminDashboard = () => {
                       <tr key={prod._id} className="hover:bg-sand-50/40 transition-colors">
                         <td className="px-6 py-4">
                           <img
-                            src={`http://localhost:5000${prod.image}`}
+                            src={`${BACKEND_URL}${prod.image}`}
                             alt={prod.name}
                             className="w-12 h-12 object-cover border border-sand-200/40"
                           />
@@ -444,7 +444,7 @@ const AdminDashboard = () => {
                 {image && (
                   <div className="mt-4 border border-sand-200 p-2 w-32 h-32 relative group">
                     <img
-                      src={`http://localhost:5000${image}`}
+                      src={`${BACKEND_URL}${image}`}
                       alt="Preview"
                       className="w-full h-full object-cover"
                     />

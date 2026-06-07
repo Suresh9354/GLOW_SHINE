@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { FaShoppingCart, FaStar, FaArrowLeft, FaCheck } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
-import axios from "../axiosConfig";
+import axios, { BACKEND_URL } from "../axiosConfig";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -93,7 +93,7 @@ const ProductDetails = () => {
           <div className="md:col-span-6 bg-white border border-sand-200/40 p-4 rounded-2xl shadow-sm">
             <div className="aspect-square bg-sand-100 rounded-xl overflow-hidden relative">
               <img
-                src={`http://localhost:5000${product.image}`}
+                src={`${BACKEND_URL}${product.image}`}
                 alt={product.name}
                 className="w-full h-full object-cover transition-transform duration-500 hover:scale-[1.02]"
               />

@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { CartContext } from "../context/CartContext";
 import { FaTrash, FaShoppingBag, FaArrowLeft } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
+import { BACKEND_URL } from "../axiosConfig";
 
 const Cart = () => {
   const { cartItems, removeFromCart, updateQuantity } = useContext(CartContext);
@@ -56,7 +57,7 @@ const Cart = () => {
                 {/* Image */}
                 <Link to={`/product/${item._id}`} className="w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 bg-sand-100 rounded-xl overflow-hidden border border-sand-200/30 block">
                   <img
-                    src={`http://localhost:5000${item.image}`}
+                    src={`${BACKEND_URL}${item.image}`}
                     alt={item.name}
                     className="w-full h-full object-cover hover:scale-103 transition-transform duration-300"
                   />
