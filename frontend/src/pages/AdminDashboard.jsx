@@ -20,6 +20,53 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [successVisible, setSuccessVisible] = useState(false);
+
+  // Auto-fade and clear success message
+  useEffect(() => {
+    if (success) {
+      setSuccessVisible(true);
+      const timer = setTimeout(() => {
+        setSuccessVisible(false);
+      }, 3000); // Show for 3 seconds
+      return () => clearTimeout(timer);
+    } else {
+      setSuccessVisible(false);
+    }
+  }, [success]);
+
+  useEffect(() => {
+    if (!successVisible && success) {
+      const timer = setTimeout(() => {
+        setSuccess("");
+      }, 500); // Match CSS transition duration (500ms)
+      return () => clearTimeout(timer);
+    }
+  }, [successVisible, success]);
+
+  // Auto-fade and clear error message
+  useEffect(() => {
+    if (error) {
+      setErrorVisible(true);
+      const timer = setTimeout(() => {
+        setErrorVisible(false);
+      }, 3000); // Show for 3 seconds
+      return () => clearTimeout(timer);
+    } else {
+      setErrorVisible(false);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (!errorVisible && error) {
+      const timer = setTimeout(() => {
+        setError("");
+      }, 500); // Match CSS transition duration (500ms)
+      return () => clearTimeout(timer);
+    }
+  }, [errorVisible, error]);
+
 
   // Form states
   const [editingId, setEditingId] = useState(null);
@@ -222,15 +269,31 @@ const AdminDashboard = () => {
 
         {/* Feedback alerts */}
         {error && (
-          <div className="bg-red-50 border-l-2 border-red-500 text-red-700 text-xs px-4 py-2.5 mb-6 flex justify-between items-center">
+          <div
+            className={`bg-red-50 border-red-500 text-red-700 text-xs px-4 flex justify-between items-center transition-all duration-500 ease-in-out overflow-hidden ${
+              errorVisible
+                ? "opacity-100 max-h-20 mb-6 py-2.5 border-l-2"
+                : "opacity-0 max-h-0 mb-0 py-0 border-l-0"
+            }`}
+          >
             <span>{error}</span>
-            <button onClick={() => setError("")}><FaTimes /></button>
+            <button onClick={() => setErrorVisible(false)} className="hover:opacity-75 transition-opacity cursor-pointer">
+              <FaTimes />
+            </button>
           </div>
         )}
         {success && (
-          <div className="bg-green-50 border-l-2 border-green-500 text-green-700 text-xs px-4 py-2.5 mb-6 flex justify-between items-center">
+          <div
+            className={`bg-green-50 border-green-500 text-green-700 text-xs px-4 flex justify-between items-center transition-all duration-500 ease-in-out overflow-hidden ${
+              successVisible
+                ? "opacity-100 max-h-20 mb-6 py-2.5 border-l-2"
+                : "opacity-0 max-h-0 mb-0 py-0 border-l-0"
+            }`}
+          >
             <span>{success}</span>
-            <button onClick={() => setSuccess("")}><FaTimes /></button>
+            <button onClick={() => setSuccessVisible(false)} className="hover:opacity-75 transition-opacity cursor-pointer">
+              <FaTimes />
+            </button>
           </div>
         )}
 
