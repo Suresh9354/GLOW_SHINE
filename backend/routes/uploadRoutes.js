@@ -8,11 +8,16 @@ const router = express.Router();
 
 // Configure Cloudinary conditionally
 const isCloudinaryConfigured = 
-  process.env.CLOUDINARY_CLOUD_NAME && 
-  process.env.CLOUDINARY_API_KEY && 
-  process.env.CLOUDINARY_API_SECRET;
+  process.env.CLOUDINARY_URL || (
+    process.env.CLOUDINARY_CLOUD_NAME && 
+    process.env.CLOUDINARY_API_KEY && 
+    process.env.CLOUDINARY_API_SECRET
+  );
 
-if (isCloudinaryConfigured) {
+if (process.env.CLOUDINARY_URL) {
+  // Cloudinary SDK automatically configures itself when CLOUDINARY_URL is present,
+  // but we can call config() to verify or let it handle it natively.
+} else if (isCloudinaryConfigured) {
   cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
