@@ -24,11 +24,13 @@ function ScrollToTop() {
 }
 
 function App() {
+  const location = useLocation();
+
   return (
     <>
       <ScrollToTop />
       <Navbar />
-      <main className="pt-20">
+      <main key={location.pathname} className="pt-20 animate-fade-in">
         <Routes>
           <Route path="/" element={<Home />} /> {/* Single-page sections */}
           <Route path="/login" element={<Login />} />
