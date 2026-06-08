@@ -8,4 +8,12 @@ const axiosInstance = axios.create({
   baseURL: `${BACKEND_URL}/api`,
 });
 
+export const getImageUrl = (imagePath) => {
+  if (!imagePath) return "";
+  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+    return imagePath;
+  }
+  return `${BACKEND_URL}${imagePath}`;
+};
+
 export default axiosInstance;
