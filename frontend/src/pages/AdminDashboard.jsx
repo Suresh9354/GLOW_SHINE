@@ -27,45 +27,39 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (success) {
       setSuccessVisible(true);
-      const timer = setTimeout(() => {
+      const fadeTimer = setTimeout(() => {
         setSuccessVisible(false);
-      }, 3000); // Show for 3 seconds
-      return () => clearTimeout(timer);
+      }, 2500); // Start fading out after 2.5 seconds
+      const clearTimer = setTimeout(() => {
+        setSuccess("");
+      }, 3000); // Clear message after 3 seconds (allowing 500ms transition)
+      return () => {
+        clearTimeout(fadeTimer);
+        clearTimeout(clearTimer);
+      };
     } else {
       setSuccessVisible(false);
     }
   }, [success]);
 
-  useEffect(() => {
-    if (!successVisible && success) {
-      const timer = setTimeout(() => {
-        setSuccess("");
-      }, 500); // Match CSS transition duration (500ms)
-      return () => clearTimeout(timer);
-    }
-  }, [successVisible, success]);
-
   // Auto-fade and clear error message
   useEffect(() => {
     if (error) {
       setErrorVisible(true);
-      const timer = setTimeout(() => {
+      const fadeTimer = setTimeout(() => {
         setErrorVisible(false);
-      }, 3000); // Show for 3 seconds
-      return () => clearTimeout(timer);
+      }, 2500); // Start fading out after 2.5 seconds
+      const clearTimer = setTimeout(() => {
+        setError("");
+      }, 3000); // Clear message after 3 seconds (allowing 500ms transition)
+      return () => {
+        clearTimeout(fadeTimer);
+        clearTimeout(clearTimer);
+      };
     } else {
       setErrorVisible(false);
     }
   }, [error]);
-
-  useEffect(() => {
-    if (!errorVisible && error) {
-      const timer = setTimeout(() => {
-        setError("");
-      }, 500); // Match CSS transition duration (500ms)
-      return () => clearTimeout(timer);
-    }
-  }, [errorVisible, error]);
 
 
   // Form states
@@ -277,7 +271,7 @@ const AdminDashboard = () => {
             }`}
           >
             <span>{error}</span>
-            <button onClick={() => setErrorVisible(false)} className="hover:opacity-75 transition-opacity cursor-pointer">
+            <button onClick={() => setError("")} className="hover:opacity-75 transition-opacity cursor-pointer">
               <FaTimes />
             </button>
           </div>
@@ -291,7 +285,7 @@ const AdminDashboard = () => {
             }`}
           >
             <span>{success}</span>
-            <button onClick={() => setSuccessVisible(false)} className="hover:opacity-75 transition-opacity cursor-pointer">
+            <button onClick={() => setSuccess("")} className="hover:opacity-75 transition-opacity cursor-pointer">
               <FaTimes />
             </button>
           </div>
