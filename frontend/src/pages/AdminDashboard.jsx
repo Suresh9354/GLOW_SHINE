@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import axios, { BACKEND_URL, getImageUrl } from "../axiosConfig";
 import { useNavigate } from "react-router-dom";
-import { FaTrash, FaEdit, FaPlus, FaList, FaUpload, FaTimes } from "react-icons/fa";
+import { FaTrash, FaEdit, FaPlus, FaList, FaUpload, FaTimes, FaShoppingBag, FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 const AdminDashboard = () => {
   const { user } = useContext(AuthContext);
@@ -16,8 +16,10 @@ const AdminDashboard = () => {
   }, [user, navigate]);
 
   const [products, setProducts] = useState([]);
-  const [activeTab, setActiveTab] = useState("list"); // "list" | "form"
+  const [orders, setOrders] = useState([]);
+  const [activeTab, setActiveTab] = useState("list"); // "list" | "form" | "orders"
   const [loading, setLoading] = useState(false);
+  const [ordersLoading, setOrdersLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [errorVisible, setErrorVisible] = useState(false);
@@ -73,6 +75,10 @@ const AdminDashboard = () => {
   const [uploading, setUploading] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
+  // Order management states
+  const [expandedOrderId, setExpandedOrderId] = useState(null);
+  const [deletingOrderId, setDeletingOrderId] = useState(null);
+
   // Fetch products
   const fetchProducts = async () => {
     try {
@@ -87,9 +93,67 @@ const AdminDashboard = () => {
     }
   };
 
+  // Fetch orders
+  const fetchOrders = async () => {
+    try {
+      setOrdersLoading(true);
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+      const res = await axios.get("/orders", config);
+      setOrders(res.data);
+      setOrdersLoading(false);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to fetch orders.");
+      setOrdersLoading(false);
+    }
+  };
+
+  // Update order status
+  const handleUpdateStatus = async (orderId, newStatus) => {
+    setError("");
+    setSuccess("");
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+      await axios.put(`/orders/${orderId}`, { status: newStatus }, config);
+      setSuccess("Order status updated successfully!");
+      fetchOrders();
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || "Failed to update order status.");
+    }
+  };
+
+  // Delete/Cancel order
+  const handleDeleteOrder = async (orderId) => {
+    setError("");
+    setSuccess("");
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+      await axios.delete(`/orders/${orderId}`, config);
+      setSuccess("Order deleted successfully!");
+      fetchOrders();
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || "Failed to delete order.");
+    }
+  };
+
   useEffect(() => {
     if (user && user.isAdmin) {
       fetchProducts();
+      fetchOrders();
     }
   }, [user]);
 
@@ -258,6 +322,21 @@ const AdminDashboard = () => {
             >
               <FaPlus /> <span>Add Product</span>
             </button>
+            <button
+              onClick={() => {
+                setActiveTab("orders");
+                resetForm();
+                setError("");
+                setSuccess("");
+              }}
+              className={`flex items-center space-x-2 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider transition ${
+                activeTab === "orders"
+                  ? "bg-cocoa-900 text-white"
+                  : "bg-white border border-sand-200 text-cocoa-600 hover:bg-sand-100"
+              }`}
+            >
+              <FaShoppingBag /> <span>Manage Orders</span>
+            </button>
           </div>
         </div>
 
@@ -308,6 +387,31 @@ const AdminDashboard = () => {
               <span className="text-cocoa-600 text-xs font-semibold uppercase tracking-wider block">Premium Items (+$25)</span>
               <span className="text-3xl font-serif font-bold text-cocoa-900 block mt-2">
                 {products.filter((p) => p.price > 25).length}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Orders Stats Cards */}
+        {activeTab === "orders" && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+            <div className="bg-white border border-sand-200/80 p-6 shadow-sm">
+              <span className="text-cocoa-600 text-xs font-semibold uppercase tracking-wider block">Total Orders</span>
+              <span className="text-3xl font-serif font-bold text-cocoa-900 block mt-2">{orders.length}</span>
+            </div>
+            <div className="bg-white border border-sand-200/80 p-6 shadow-sm">
+              <span className="text-cocoa-600 text-xs font-semibold uppercase tracking-wider block">Total Revenue</span>
+              <span className="text-3xl font-serif font-bold text-cocoa-900 block mt-2">
+                ${orders
+                  .filter((o) => o.status !== "Cancelled")
+                  .reduce((sum, o) => sum + o.total, 0)
+                  .toFixed(2)}
+              </span>
+            </div>
+            <div className="bg-white border border-sand-200/80 p-6 shadow-sm">
+              <span className="text-cocoa-600 text-xs font-semibold uppercase tracking-wider block">Active Orders</span>
+              <span className="text-3xl font-serif font-bold text-cocoa-900 block mt-2">
+                {orders.filter((o) => o.status !== "Delivered" && o.status !== "Cancelled").length}
               </span>
             </div>
           </div>
@@ -537,6 +641,188 @@ const AdminDashboard = () => {
                 </button>
               </div>
             </form>
+          </div>
+        )}
+
+        {/* Tab 3: Manage Orders */}
+        {activeTab === "orders" && (
+          <div className="bg-white border border-sand-200/80 shadow-sm overflow-hidden">
+            {ordersLoading ? (
+              <p className="text-center py-12 text-cocoa-600 italic">Loading orders...</p>
+            ) : orders.length === 0 ? (
+              <p className="text-center py-12 text-cocoa-600 italic">No orders found.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm border-collapse">
+                  <thead>
+                    <tr className="bg-sand-100/60 border-b border-sand-200 text-cocoa-900 uppercase text-[10px] tracking-widest font-semibold">
+                      <th className="px-6 py-4">Order ID & Date</th>
+                      <th className="px-6 py-4">Customer</th>
+                      <th className="px-6 py-4">Total</th>
+                      <th className="px-6 py-4">Status</th>
+                      <th className="px-6 py-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-sand-100 text-cocoa-600">
+                    {orders.map((order) => {
+                      const isExpanded = expandedOrderId === order._id;
+                      const orderDate = new Date(order.createdAt).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit"
+                      });
+
+                      return (
+                        <React.Fragment key={order._id}>
+                          <tr className="hover:bg-sand-50/40 transition-colors">
+                            <td className="px-6 py-4">
+                              <span className="font-mono text-xs font-semibold text-cocoa-900 block select-all cursor-pointer" title="Click to select ID">
+                                {order._id}
+                              </span>
+                              <span className="text-[10px] text-cocoa-500 font-medium">
+                                {orderDate}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="font-serif font-bold text-cocoa-900 block">
+                                {order.customer.name}
+                              </span>
+                              <span className="text-xs text-cocoa-500 block">
+                                {order.customer.email}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 font-semibold text-cocoa-900">
+                              ${order.total.toFixed(2)}
+                            </td>
+                            <td className="px-6 py-4">
+                              <select
+                                value={order.status || "Placed"}
+                                onChange={(e) => handleUpdateStatus(order._id, e.target.value)}
+                                className={`px-3 py-1.5 text-xs font-semibold rounded-full border focus:outline-none transition-colors cursor-pointer ${
+                                  order.status === "Processing"
+                                    ? "bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100/60"
+                                    : order.status === "Shipped"
+                                    ? "bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100/60"
+                                    : order.status === "Delivered"
+                                    ? "bg-green-50 border-green-200 text-green-700 hover:bg-green-100/60"
+                                    : order.status === "Cancelled"
+                                    ? "bg-red-50 border-red-200 text-red-700 hover:bg-red-100/60"
+                                    : "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100/60"
+                                }`}
+                              >
+                                <option value="Placed">Placed</option>
+                                <option value="Processing">Processing</option>
+                                <option value="Shipped">Shipped</option>
+                                <option value="Delivered">Delivered</option>
+                                <option value="Cancelled">Cancelled</option>
+                              </select>
+                            </td>
+                            <td className="px-6 py-4 text-right space-x-2">
+                              <button
+                                onClick={() => setExpandedOrderId(isExpanded ? null : order._id)}
+                                className="inline-flex items-center space-x-1.5 px-3 py-1.5 border border-sand-200 bg-sand-100 hover:bg-sand-200 text-cocoa-900 text-xs font-semibold transition cursor-pointer"
+                              >
+                                <span>{isExpanded ? "Hide" : "Details"}</span>
+                                {isExpanded ? <FaChevronUp className="text-[10px]" /> : <FaChevronDown className="text-[10px]" />}
+                              </button>
+
+                              {deletingOrderId === order._id ? (
+                                <div className="inline-flex items-center space-x-1.5 ml-2">
+                                  <span className="text-xs text-red-500 font-semibold">Confirm?</span>
+                                  <button
+                                    onClick={() => {
+                                      handleDeleteOrder(order._id);
+                                      setDeletingOrderId(null);
+                                    }}
+                                    className="bg-red-500 hover:bg-red-600 text-white text-[10px] uppercase font-bold px-2.5 py-1.5 transition shadow-sm cursor-pointer"
+                                  >
+                                    Yes
+                                  </button>
+                                  <button
+                                    onClick={() => setDeletingOrderId(null)}
+                                    className="bg-sand-100 hover:bg-sand-200 text-cocoa-900 border border-sand-200 text-[10px] uppercase font-bold px-2.5 py-1.5 transition cursor-pointer"
+                                  >
+                                    No
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => setDeletingOrderId(order._id)}
+                                  className="inline-flex items-center justify-center p-2 text-red-500 hover:text-red-700 hover:bg-red-50 transition cursor-pointer"
+                                  title="Delete / Cancel Order"
+                                >
+                                  <FaTrash className="text-sm" />
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+
+                          {/* Expanded Details Row */}
+                          {isExpanded && (
+                            <tr className="bg-sand-50/50">
+                              <td colSpan="5" className="px-8 py-6 border-b border-sand-200">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-cocoa-600">
+                                  {/* Left: Shipping Info */}
+                                  <div className="space-y-4">
+                                    <h4 className="font-serif font-bold text-cocoa-900 border-b border-sand-200 pb-2 text-base">
+                                      Shipping Details
+                                    </h4>
+                                    <div className="space-y-2.5 text-xs">
+                                      <p>
+                                        <span className="font-semibold block text-cocoa-900 mb-0.5">Name:</span>{" "}
+                                        {order.customer.name}
+                                      </p>
+                                      <p>
+                                        <span className="font-semibold block text-cocoa-900 mb-0.5">Email:</span>{" "}
+                                        {order.customer.email}
+                                      </p>
+                                      <p>
+                                        <span className="font-semibold block text-cocoa-900 mb-0.5">Address:</span>{" "}
+                                        <span className="whitespace-pre-wrap leading-relaxed block bg-white border border-sand-200 p-2.5 rounded-lg max-w-sm">
+                                          {order.customer.address}
+                                        </span>
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  {/* Right: Items Details */}
+                                  <div className="space-y-4">
+                                    <h4 className="font-serif font-bold text-cocoa-900 border-b border-sand-200 pb-2 text-base">
+                                      Order Items
+                                    </h4>
+                                    <div className="divide-y divide-sand-100 max-h-56 overflow-y-auto pr-1">
+                                      {order.items.map((item, idx) => (
+                                        <div key={idx} className="flex justify-between items-center py-3 first:pt-0 last:pb-0 text-xs">
+                                          <div>
+                                            <p className="font-semibold text-cocoa-900">{item.name}</p>
+                                            <p className="text-[10px] text-cocoa-500 mt-0.5">
+                                              Quantity: <span className="font-semibold text-cocoa-900">{item.quantity}</span> @ ${item.price.toFixed(2)} each
+                                            </p>
+                                          </div>
+                                          <span className="font-semibold text-cocoa-900">
+                                            ${(item.price * item.quantity).toFixed(2)}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                    <div className="border-t border-sand-200 pt-3 mt-3 flex justify-between items-center font-bold text-cocoa-900">
+                                      <span className="text-xs uppercase tracking-wider text-cocoa-600">Total Charged</span>
+                                      <span className="text-base">${order.total.toFixed(2)}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
       </div>

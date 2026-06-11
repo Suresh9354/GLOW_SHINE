@@ -15,6 +15,12 @@ const orderSchema = mongoose.Schema(
       email: { type: String, required: true },
       address: { type: String, required: true },
     },
+    status: {
+      type: String,
+      required: true,
+      default: "Placed",
+      enum: ["Placed", "Processing", "Shipped", "Delivered", "Cancelled"],
+    },
     total: { type: Number, required: true },
   },
   { timestamps: true }

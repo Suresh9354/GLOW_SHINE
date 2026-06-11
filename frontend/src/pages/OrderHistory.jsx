@@ -104,8 +104,18 @@ const OrderHistory = () => {
                       </div>
                     </div>
                     <div>
-                      <span className="bg-green-50 border border-green-200/60 text-green-700 text-[9px] font-bold uppercase tracking-[0.15em] px-3 py-1 rounded-full">
-                        Placed
+                      <span className={`border text-[9px] font-bold uppercase tracking-[0.15em] px-3 py-1 rounded-full ${
+                        order.status === "Processing"
+                          ? "bg-amber-50 border-amber-200/60 text-amber-700"
+                          : order.status === "Shipped"
+                          ? "bg-purple-50 border-purple-200/60 text-purple-700"
+                          : order.status === "Delivered"
+                          ? "bg-green-50 border-green-200/60 text-green-700"
+                          : order.status === "Cancelled"
+                          ? "bg-red-50 border-red-200/60 text-red-700"
+                          : "bg-blue-50 border-blue-200/60 text-blue-700"
+                      }`}>
+                        {order.status || "Placed"}
                       </span>
                     </div>
                   </div>
