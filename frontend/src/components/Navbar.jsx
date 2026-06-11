@@ -95,7 +95,7 @@ const Navbar = () => {
         {/* Action Buttons & Icons */}
         <div className="hidden md:flex items-center space-x-6">
           {/* Cart Icon */}
-          {user && (
+          {user && location.pathname !== "/admin" && (
             <div className="relative">
               <RouterLink to="/cart" className="text-cocoa-900 hover:text-primary transition-colors p-1.5 rounded-full hover:bg-sand-100/30 block">
                 <FaShoppingCart className="text-lg" />
@@ -115,16 +115,18 @@ const Navbar = () => {
                   to="/admin"
                   className="text-xs font-semibold text-primary hover:text-primary-hover transition-colors"
                 >
-                  Admin
+                  Admin Dashboard
                 </RouterLink>
               )}
-              <RouterLink
-                to="/orders"
-                className="flex items-center text-xs font-medium text-cocoa-900/80 hover:text-primary transition-colors"
-              >
-                <FaShoppingBag className="mr-1 text-[10px] opacity-75" />
-                My Orders
-              </RouterLink>
+              {location.pathname !== "/admin" && (
+                <RouterLink
+                  to="/orders"
+                  className="flex items-center text-xs font-medium text-cocoa-900/80 hover:text-primary transition-colors"
+                >
+                  <FaShoppingBag className="mr-1 text-[10px] opacity-75" />
+                  My Orders
+                </RouterLink>
+              )}
               <div className="flex items-center space-x-1 border-l border-sand-200 pl-3 h-4">
                 <FaUserCircle className="text-lg text-primary/80" />
                 <span className="text-xs font-medium text-cocoa-900/90">{user.name}</span>
@@ -156,7 +158,7 @@ const Navbar = () => {
 
         {/* Mobile Menu Icon */}
         <div className="md:hidden flex items-center space-x-4">
-          {user && (
+          {user && location.pathname !== "/admin" && (
             <div className="relative mr-1">
               <RouterLink to="/cart" className="text-cocoa-900 hover:text-primary block p-1">
                 <FaShoppingCart className="text-lg" />
@@ -203,17 +205,19 @@ const Navbar = () => {
                     onClick={() => setMenuOpen(false)}
                     className="flex items-center text-sm font-semibold text-primary hover:text-primary-hover py-1"
                   >
-                    Admin Panel
+                    Admin Dashboard
                   </RouterLink>
                 )}
-                <RouterLink
-                  to="/orders"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center text-sm font-medium text-cocoa-900/90 hover:text-primary py-1"
-                >
-                  <FaShoppingBag className="mr-2 opacity-75 text-xs" />
-                  My Orders
-                </RouterLink>
+                {location.pathname !== "/admin" && (
+                  <RouterLink
+                    to="/orders"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center text-sm font-medium text-cocoa-900/90 hover:text-primary py-1"
+                  >
+                    <FaShoppingBag className="mr-2 opacity-75 text-xs" />
+                    My Orders
+                  </RouterLink>
+                )}
                 <button
                   onClick={() => {
                     logout();
