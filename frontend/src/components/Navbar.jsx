@@ -95,7 +95,7 @@ const Navbar = () => {
         {/* Action Buttons & Icons */}
         <div className="hidden md:flex items-center space-x-6">
           {/* Cart Icon */}
-          {user && location.pathname !== "/admin" && (
+          {user && !user.isAdmin && (
             <div className="relative">
               <RouterLink to="/cart" className="text-cocoa-900 hover:text-primary transition-colors p-1.5 rounded-full hover:bg-sand-100/30 block">
                 <FaShoppingCart className="text-lg" />
@@ -118,7 +118,7 @@ const Navbar = () => {
                   Admin Dashboard
                 </RouterLink>
               )}
-              {location.pathname !== "/admin" && (
+              {user && !user.isAdmin && (
                 <RouterLink
                   to="/orders"
                   className="flex items-center text-xs font-medium text-cocoa-900/80 hover:text-primary transition-colors"
@@ -158,7 +158,7 @@ const Navbar = () => {
 
         {/* Mobile Menu Icon */}
         <div className="md:hidden flex items-center space-x-4">
-          {user && location.pathname !== "/admin" && (
+          {user && !user.isAdmin && (
             <div className="relative mr-1">
               <RouterLink to="/cart" className="text-cocoa-900 hover:text-primary block p-1">
                 <FaShoppingCart className="text-lg" />
@@ -208,7 +208,7 @@ const Navbar = () => {
                     Admin Dashboard
                   </RouterLink>
                 )}
-                {location.pathname !== "/admin" && (
+                {user && !user.isAdmin && (
                   <RouterLink
                     to="/orders"
                     onClick={() => setMenuOpen(false)}
